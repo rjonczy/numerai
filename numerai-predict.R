@@ -1,8 +1,11 @@
 library(caret)
+library(ROCR)
+library(rpart)
 
 setwd("/Users/robert/workspaces/numerai")
 
 source("./src/submission.R")
+source("./src/validate.R")
 
 # download files
 # download.file("http://datasets.numer.ai/57aada7/numerai_training_data.csv", "./data/numerai_training_data.csv")
@@ -24,6 +27,7 @@ str(test)
 # prepare data
 train$target <- as.factor(train$target)
 
+# split data into train and validation
 set.seed(1234)
 trainIndex <- createDataPartition(train$target, p = .8, list = FALSE, times = 1)
 
@@ -57,16 +61,15 @@ submission(pred, 'subm-benchmark-1.csv')
 # formulas
 
 formula.basic <- target ~ .
-formula.orig <- target ~ f1 + f2 + f3 + f4 + f5 + f6 + f7 + f8 + f9 + f10 + f11 + f12 + f13 + f14 + c1
-formula.numeric <- target ~ f1 + f2 + f3 + f4 + f5 + f6 + f7 + f8 + f9 + f10 + f11 + f12 + f13 + f14
-formula.pca <- target ~ PC1 + PC2 + PC3 + PC4 + PC5 + PC6 + PC7 + PC8 + c1
 formula <- formula.basic
 
 # rpart (logloss = 0.69294)
 fit <- rpart(formula, train)
+acc <- validate(fit, validate)
+print(acc)
+
 pred <- predict(fit, test, type = "prob")
 submission(pred[,2], 'simple-rpart.csv')
-
 
 
 
