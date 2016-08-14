@@ -5,5 +5,5 @@ submission <- function( pred, name ) {
   prediction <- sample
   prediction$probability <- pred
   
-  write.table(prediction, file = paste(subm_dir, paste0('subm-', name)), sep = ",", row.names = FALSE, col.names = TRUE)
+  write.table(prediction, file = paste0(subm_dir, paste0('subm-', name)), sep = ",", row.names = FALSE, col.names = TRUE)
 }
