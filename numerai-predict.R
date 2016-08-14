@@ -109,6 +109,7 @@ names(qdaPredValid)
 qdaPredValid.prob <- qdaPredValid$posterior        # propabilities
 qdaPredValid.class <- qdaPredValid$class           # predicted target
 
+
 head(qdaPredValid.prob)
 head(qdaPredValid.class)
 
@@ -135,8 +136,21 @@ submission(qdaPredTest$posterior[,2], 'simple-qda.csv') # we are interested in p
 
 # model - random forest ---------------------------------------------------
 
+# (valid logloss 0.7003623 / numerai logloss 0.70022)
+rfModel <- randomForest(formula, data = train, ntree = 100)                   # train model
 
+rfPredValid.prob <- predict(rfModel, validate, type = "prob")        # predict on validate (probabilities)
+rfPredValid.class <- predict(rfModel, validate, type = "response")      # predict on validate (predicted class)
 
+logLoss(as.numeric(as.character(validate$target)), 
+        rfPredValid.prob[,2])                                        # calculate logloss metrics
+
+confusionMatrix(data = rfPredValid.class,                            # calculate confusion matrix
+                reference = validate$target,
+                positive = '1')
+
+rfPredTest <- predict(rfModel, test, type = "prob")
+submission(rfPredTest[,2], 'simple-rf.csv') # we are interested in probabilities of target 1
 
 
 
